@@ -1,5 +1,6 @@
 #pragma once
 
+#include "headers.h"
 
 // this is a variation of the fnv1a_32 hash algorithm, but keeping the original primes,
 // changed to allow both unicode and char*, slower but same distribution for ascii text
