@@ -1,4 +1,8 @@
-#include "headers.h"
+
+#include <ntstatus.h>
+#include <winternl.h>
+#include "hash.h"
+
 
 
 PPEB get_peb()
@@ -9,7 +13,6 @@ PPEB get_peb()
 	return (PPEB)__readgsqword(0x60);
 #endif
 }
-
 
 PIMAGE_DATA_DIRECTORY get_data_dir(LPBYTE lpBaseAddress, WORD wIndex)
 {
