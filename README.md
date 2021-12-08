@@ -18,6 +18,10 @@ Experimental Stage-1 Shellcode Loader, using IE COM Object Methods to fetch Shel
 - Ability to convert UUID to shellcode and inject remote using thread hijacking
 - Using SGN or custom shellcode encoder before generating UUID Shellcode
  
+ # Usage
+ 
+ - Host your shellcode as UUIDs 
+ - Hardcode the raw link in Line: 206 inside downloader.h
 
 # Idea
 
