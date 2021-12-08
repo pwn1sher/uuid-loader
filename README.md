@@ -11,6 +11,7 @@ Experimental Stage-1 Shellcode Loader, using IE COM Object Methods to fetch Shel
 - Multiple Preliminary Checks before execution
 - Implements BlockDLL;s to block non microsoft signed DLL to get loader - Blocking EDR DLL Hooks
 - Does Local Process Injection, avoiding touching remote process 
+- Works fine with Cobalt Strike x64 Stageless Shellcode
 
 # Upcoming 
 
