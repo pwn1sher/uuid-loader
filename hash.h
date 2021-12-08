@@ -1,6 +1,8 @@
-#pragma once
+// Taken from zerosum0x0 https://github.com/zerosum0x0/zeroload/blob/master/zdi/dll/zeroload/hash.h
 
+#pragma once
 #include "headers.h"
+#include <Windows.h>
 
 // this is a variation of the fnv1a_32 hash algorithm, but keeping the original primes,
 // changed to allow both unicode and char*, slower but same distribution for ascii text
